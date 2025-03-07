@@ -138,7 +138,9 @@ func (a Andariel) Run() error {
 
 		action.UsePortalInTown()
 	}
-
+	
+	action.OpenTPIfLeader()
+	
 	if a.ctx.CharacterCfg.Game.Andariel.ClearRoom {
 		// Clearing inside room
 		a.ctx.Logger.Info("Clearing inside room")

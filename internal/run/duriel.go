@@ -84,6 +84,8 @@ func (d Duriel) Run() error {
 	if err != nil {
 		return err
 	}
+	
+		action.OpenTPIfLeader()
 
 	staff, ok := d.ctx.Data.Inventory.Find("HoradricStaff", item.LocationInventory)
 	if !d.ctx.Data.Quests[quest.Act2TheHoradricStaff].Completed() && ok {

@@ -68,7 +68,7 @@ func PreRun(firstRun bool) error {
 func InRunReturnTownRoutine() error {
 	ctx := context.Get()
 
-	if err := ReturnTown(); err != nil {
+	if err := ReturnToTownWithOwnedPortal(); err != nil {
 		return fmt.Errorf("failed to return to town: %w", err)
 	}
 
@@ -108,11 +108,12 @@ func InRunReturnTownRoutine() error {
 	HireMerc()
 	Repair()
 	
-	if (ctx.CharacterCfg.Companion.Leader) {
+	if ctx.CharacterCfg.Companion.Leader {
 		UsePortalInTown()
 		utils.Sleep(500)
 		return OpenTPIfLeader()
 	}
 	
+	Buff()
 	return UsePortalInTown()
 }
