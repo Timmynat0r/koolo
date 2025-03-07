@@ -109,6 +109,7 @@ type CharacterCfg struct {
 		UseMerc       bool   `yaml:"useMerc"`
 		StashToShared bool   `yaml:"stashToShared"`
 		UseTeleport   bool   `yaml:"useTeleport"`
+		ClearPathDist int    `yaml:"clearPathDist"`
 		BerserkerBarb struct {
 			FindItemSwitch              bool `yaml:"find_item_switch"`
 			SkipPotionPickupInTravincal bool `yaml:"skip_potion_pickup_in_travincal"`
@@ -146,8 +147,15 @@ type CharacterCfg struct {
 			FocusOnElitePacks     bool `yaml:"focusOnElitePacks"`
 			OnlyClearLevel2       bool `yaml:"onlyClearLevel2"`
 		} `yaml:"pit"`
+		Countess struct {
+			ClearFloors bool `yaml:"clearFloors"`
+		}
 		Andariel struct {
-			ClearRoom bool `yaml:"clearRoom"`
+			ClearRoom   bool `yaml:"clearRoom"`
+			UseAntidoes bool `yaml:"useAntidoes"`
+		}
+		Duriel struct {
+			UseThawing bool `yaml:"useThawing"`
 		}
 		StonyTomb struct {
 			OpenChests        bool `yaml:"openChests"`
@@ -230,10 +238,13 @@ type CharacterCfg struct {
 		} `yaml:"quests"`
 	} `yaml:"game"`
 	Companion struct {
-		Leader           bool   `yaml:"leader"`
-		LeaderName       string `yaml:"leaderName"`
-		GameNameTemplate string `yaml:"gameNameTemplate"`
-		GamePassword     string `yaml:"gamePassword"`
+		Enabled               bool   `yaml:"enabled"`
+		Leader                bool   `yaml:"leader"`
+		LeaderName            string `yaml:"leaderName"`
+		GameNameTemplate      string `yaml:"gameNameTemplate"`
+		GamePassword          string `yaml:"gamePassword"`
+		CompanionGameName     string `yaml:"companionGameName"`
+		CompanionGamePassword string `yaml:"companionGamePassword"`
 	} `yaml:"companion"`
 	Gambling struct {
 		Enabled bool        `yaml:"enabled"`
