@@ -117,6 +117,7 @@ func (s Baal) Run() error {
 	}
 
 	// Force rebuff before waves
+	utils.Sleep(500)
 	action.Buff()
 
 	// Come back to previous position
@@ -146,7 +147,7 @@ func (s Baal) Run() error {
 		if err != nil {
 			return err
 		}
-		action.BuffIfRequired()
+		action.Buff()
 		// Small delay to allow next wave to spawn if not last wave
 		if !lastWave {
 			utils.Sleep(500)
