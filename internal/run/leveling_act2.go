@@ -285,7 +285,7 @@ func (a Leveling) prepareStaff() error {
 func (a Leveling) duriel() error {
 	a.ctx.Logger.Info("Starting Duriel....")
 	a.ctx.CharacterCfg.Game.Duriel.UseThawing = true
-	if err := NewDuriel().Run(); err != nil {
+	if err := NewDurielLeveling().Run(); err != nil {
 		return err
 	}
 	duriel, found := a.ctx.Data.Monsters.FindOne(npc.Duriel, data.MonsterTypeUnique)
