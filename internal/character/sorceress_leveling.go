@@ -12,6 +12,7 @@ import (
 	"github.com/hectorgimenez/d2go/pkg/data/skill"
 	"github.com/hectorgimenez/d2go/pkg/data/stat"
 	"github.com/hectorgimenez/koolo/internal/action/step"
+	"github.com/hectorgimenez/koolo/internal/context"
 	"github.com/hectorgimenez/koolo/internal/game"
 )
 
@@ -27,7 +28,7 @@ const (
 )
 
 func (s SorceressLeveling) CheckKeyBindings() []skill.ID {
-	requireKeybindings := []skill.ID{skill.TomeOfTownPortal}
+	requireKeybindings := []skill.ID{}
 	missingKeybindings := []skill.ID{}
 
 	for _, cskill := range requireKeybindings {
@@ -97,7 +98,7 @@ func (s SorceressLeveling) KillMonsterSequence(
 					s.Logger.Debug("Using FireBall")
 				}
 				step.SecondaryAttack(skill.FireBall, id, 1, step.Distance(SorceressLevelingMinDistance, SorceressLevelingMaxDistance))
-			} else if _, found := s.Data.KeyBindings.KeyBindingForSkill(skill.IceBolt); found {
+			} else if _, found := s.Data.KeyBindings.KeyBindingForSkill(skill.FireBolt); found {
 				if s.Data.PlayerUnit.Mode == mode.CastingSkill {
 					attackSuccess = true
 					s.Logger.Debug("Using FireBolt")
@@ -148,8 +149,8 @@ func (s SorceressLeveling) PreCTABuffSkills() []skill.ID {
 
 func (s SorceressLeveling) ShouldResetSkills() bool {
 	lvl, _ := s.Data.PlayerUnit.FindStat(stat.Level, 0)
-	if lvl.Value >= 24 && s.Data.PlayerUnit.Skills[skill.FireBall].Level > 1 {
-		s.Logger.Info("Resetting skills: Level 24+ and FireBall level > 1")
+	if lvl.Value >= 32 && s.Data.PlayerUnit.Skills[skill.FireBall].Level > 1 {
+		s.Logger.Info("Respecing to Blizzard: Level 32+ and FireBall level > 1")
 		return true
 	}
 	return false
@@ -157,9 +158,7 @@ func (s SorceressLeveling) ShouldResetSkills() bool {
 
 func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 	level, _ := s.Data.PlayerUnit.FindStat(stat.Level, 0)
-	skillBindings := []skill.ID{
-		skill.TomeOfTownPortal,
-	}
+	skillBindings := []skill.ID{}
 
 	if level.Value >= 4 {
 		skillBindings = append(skillBindings, skill.FrozenArmor)
@@ -175,10 +174,12 @@ func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 		skillBindings = append(skillBindings, skill.Blizzard)
 	} else if s.Data.PlayerUnit.Skills[skill.Meteor].Level > 0 {
 		skillBindings = append(skillBindings, skill.Meteor)
+	} else if s.Data.PlayerUnit.Skills[skill.Hydra].Level > 0 {
+		skillBindings = append(skillBindings, skill.Hydra)
 	} else if s.Data.PlayerUnit.Skills[skill.FireBall].Level > 0 {
 		skillBindings = append(skillBindings, skill.FireBall)
-	} else if s.Data.PlayerUnit.Skills[skill.IceBolt].Level > 0 {
-		skillBindings = append(skillBindings, skill.IceBolt)
+	} else if s.Data.PlayerUnit.Skills[skill.FireBolt].Level > 0 {
+		skillBindings = append(skillBindings, skill.FireBolt)
 	}
 
 	mainSkill := skill.AttackSkill
@@ -192,114 +193,159 @@ func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 	return mainSkill, skillBindings
 }
 
-func (s SorceressLeveling) StatPoints() map[stat.ID]int {
-	lvl, _ := s.Data.PlayerUnit.FindStat(stat.Level, 0)
-	statPoints := make(map[stat.ID]int)
+func (s SorceressLeveling) StatPoints() []context.StatAllocation {
 
-	if lvl.Value < 20 {
-		statPoints[stat.Vitality] = 9999
-	} else {
-		statPoints[stat.Energy] = 80
-		statPoints[stat.Strength] = 60
-		statPoints[stat.Vitality] = 9999
+	// Define target totals (including base stats)
+	targets := []context.StatAllocation{
+		{Stat: stat.Vitality, Points: 50},  // Base 10 + 40
+		{Stat: stat.Strength, Points: 25},  // Base 10 + 15
+		{Stat: stat.Vitality, Points: 65},  // Previous 50 + 15
+		{Stat: stat.Strength, Points: 47},  // Previous 25 + 22
+		{Stat: stat.Vitality, Points: 999}, // Rest into vit
 	}
 
-	s.Logger.Info("Assigning stat points", "level", lvl.Value, "statPoints", statPoints)
-	return statPoints
+	return targets
 }
 
 func (s SorceressLeveling) SkillPoints() []skill.ID {
 	lvl, _ := s.Data.PlayerUnit.FindStat(stat.Level, 0)
 	var skillPoints []skill.ID
 
-	if lvl.Value < 24 {
+	if lvl.Value < 32 {
 		skillPoints = []skill.ID{
-			skill.FireBolt,
-			skill.FireBolt,
-			skill.FireBolt,
-			skill.FrozenArmor,
-			skill.FireBolt,
-			skill.StaticField,
-			skill.FireBolt,
-			skill.Warmth,
-			skill.FireBolt,
-			skill.Telekinesis,
-			skill.FireBolt,
-			skill.FireBolt,
-			skill.FireBolt,
-			skill.FireBolt,
-			skill.IceBolt,
-			skill.IceBolt,
-			skill.IceBolt,
-			skill.Teleport,
-			skill.IceBolt,
-			skill.IceBolt,
-			skill.IceBolt,
-			skill.IceBolt,
-			skill.IceBolt,
+			skill.FireBolt,    // 2
+			skill.FireBolt,    // 3
+			skill.FireBolt,    // 4
+			skill.FrozenArmor, // 5
+			skill.StaticField, // 6
+			skill.Warmth,      // 7
+			skill.FireBolt,    // 8
+			skill.FireBolt,    // 9
+			skill.FireBolt,    // 10
+			skill.FireBolt,    // 11
+			skill.FireBolt,    // 12
+			skill.FireBall,    // 13
+			skill.FireBall,    // 14
+			skill.FireBall,    // 15
+			skill.FireBall,    // 16
+			skill.Telekinesis, // 17
+			skill.Teleport,    // 18
+			skill.FireBall,    // 19
+			skill.FireBall,    // 20
+			skill.FireBall,    // 21
+			skill.FireBall,    // 22
+			skill.FireBall,    // 23
+			skill.FireBall,    // 24
+			skill.FireBall,    // 25
+			skill.FireBall,    // 26
+			skill.FireBall,    // 27
+			skill.FireBall,    // 28
+			skill.FireBall,    // 29
+			skill.FireMastery, // 30
+			skill.FireBall,    // 31
+			skill.FireBall,    // 32
+			skill.FireBall,    // 33
+			skill.FireBall,    // 34
+			skill.FireBall,    // 35
+			skill.FireBolt,    // 36 Let's overshoot by 4 in case we got the 4 skill quests
 		}
 	} else {
 		skillPoints = []skill.ID{
-			skill.FireBolt,
-			skill.Warmth,
-			skill.Inferno,
-			skill.Blaze,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.Meteor,
-			skill.FireMastery,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.Meteor,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
-			skill.FireMastery,
+			skill.StaticField,
+			skill.Telekinesis,
+			skill.Teleport,
+			skill.FrozenArmor,
+			skill.IceBolt,
+			skill.IceBlast,
+			skill.GlacialSpike,
+			skill.FrostNova,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.ColdMastery,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.Blizzard,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.ColdMastery,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.GlacialSpike,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBlast,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
 		}
 	}
 
