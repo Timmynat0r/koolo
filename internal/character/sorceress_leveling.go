@@ -27,7 +27,7 @@ const (
 )
 
 func (s SorceressLeveling) CheckKeyBindings() []skill.ID {
-	requireKeybindings := []skill.ID{}
+	requireKeybindings := []skill.ID{skill.TomeOfTownPortal}
 	missingKeybindings := []skill.ID{}
 
 	for _, cskill := range requireKeybindings {
@@ -177,8 +177,8 @@ func (s SorceressLeveling) SkillsToBind() (skill.ID, []skill.ID) {
 		skillBindings = append(skillBindings, skill.Meteor)
 	} else if s.Data.PlayerUnit.Skills[skill.FireBall].Level > 0 {
 		skillBindings = append(skillBindings, skill.FireBall)
-	} else if s.Data.PlayerUnit.Skills[skill.FireBolt].Level > 0 {
-		skillBindings = append(skillBindings, skill.FireBolt)
+	} else if s.Data.PlayerUnit.Skills[skill.IceBolt].Level > 0 {
+		skillBindings = append(skillBindings, skill.IceBolt)
 	}
 
 	mainSkill := skill.AttackSkill
@@ -196,16 +196,11 @@ func (s SorceressLeveling) StatPoints() map[stat.ID]int {
 	lvl, _ := s.Data.PlayerUnit.FindStat(stat.Level, 0)
 	statPoints := make(map[stat.ID]int)
 
-	if lvl.Value < 9 {
-		statPoints[stat.Strength] = 15
-		statPoints[stat.Vitality] = 9999
-	} else if lvl.Value < 15 {
-		statPoints[stat.Energy] = 45
-		statPoints[stat.Strength] = 25
+	if lvl.Value < 20 {
 		statPoints[stat.Vitality] = 9999
 	} else {
-		statPoints[stat.Energy] = 60
-		statPoints[stat.Strength] = 50
+		statPoints[stat.Energy] = 80
+		statPoints[stat.Strength] = 60
 		statPoints[stat.Vitality] = 9999
 	}
 
@@ -230,18 +225,18 @@ func (s SorceressLeveling) SkillPoints() []skill.ID {
 			skill.FireBolt,
 			skill.Telekinesis,
 			skill.FireBolt,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
+			skill.FireBolt,
+			skill.FireBolt,
+			skill.FireBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
 			skill.Teleport,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
-			skill.FireBall,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
+			skill.IceBolt,
 		}
 	} else {
 		skillPoints = []skill.ID{
