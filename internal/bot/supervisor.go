@@ -120,6 +120,7 @@ func (s *baseSupervisor) logGameStart(runs []run.Run) {
 func (s *baseSupervisor) waitUntilCharacterSelectionScreen() error {
 	s.bot.ctx.Logger.Info("Waiting for character selection screen...")
 
+	// Wait until the character selection screen is shown
 	for !s.bot.ctx.GameReader.IsInCharacterSelectionScreen() {
 		// Spam left click to skip to the char select screen
 		s.bot.ctx.HID.Click(game.LeftButton, 100, 100)
@@ -129,6 +130,7 @@ func (s *baseSupervisor) waitUntilCharacterSelectionScreen() error {
 	s.bot.ctx.Logger.Info("Character selection screen found")
 	disconnected := false
 
+	// Ensure the client is online
 	if err := s.ensureOnline(); err != nil {
 		s.bot.ctx.Logger.Error("[Ensure Online]: Failed to prepare for character selection, will kill client ...")
 		if err := s.KillClient(); err != nil {
@@ -138,18 +140,18 @@ func (s *baseSupervisor) waitUntilCharacterSelectionScreen() error {
 		return err
 	}
 
+	// Select character if a character name is configured
 	if s.bot.ctx.CharacterCfg.CharacterName != "" {
-
 		s.bot.ctx.Logger.Info("Selecting character...")
 
-		// If we've lost connection it bugs out and we need to select another character and the first one again.
+		// If the connection was lost, select another character and then go back
 		if disconnected {
 			s.bot.ctx.HID.PressKey(win.VK_DOWN)
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(1000 * time.Millisecond)
 			s.bot.ctx.HID.PressKey(win.VK_UP)
 		}
 
-		// Try to select a character up to 25 times then give up and kill the client
+		// Press VK_DOWN 25 times and check the character name
 		for i := 0; i < 25; i++ {
 			characterName := s.bot.ctx.GameReader.GameReader.GetSelectedCharacterName()
 
@@ -164,7 +166,23 @@ func (s *baseSupervisor) waitUntilCharacterSelectionScreen() error {
 			time.Sleep(250 * time.Millisecond)
 		}
 
-		s.bot.ctx.Logger.Info(fmt.Sprintf("Character %s not found after 25 attempts, terminating client ...", s.bot.ctx.CharacterCfg.CharacterName))
+		// Press VK_UP 25 times and check the character name
+		for i := 0; i < 25; i++ {
+			characterName := s.bot.ctx.GameReader.GameReader.GetSelectedCharacterName()
+
+			s.bot.ctx.Logger.Debug(fmt.Sprintf("Checking character: %s", characterName))
+
+			if strings.EqualFold(characterName, s.bot.ctx.CharacterCfg.CharacterName) {
+				s.bot.ctx.Logger.Info(fmt.Sprintf("Character %s found and selected.", s.bot.ctx.CharacterCfg.CharacterName))
+				return nil
+			}
+
+			s.bot.ctx.HID.PressKey(win.VK_UP)
+			time.Sleep(250 * time.Millisecond)
+		}
+
+		// If the character is not found after 50 attempts, terminate the client
+		s.bot.ctx.Logger.Info(fmt.Sprintf("Character %s not found after 50 attempts, terminating client ...", s.bot.ctx.CharacterCfg.CharacterName))
 
 		if err := s.KillClient(); err != nil {
 			return err
