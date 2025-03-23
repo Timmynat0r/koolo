@@ -2,6 +2,7 @@ package run
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/hectorgimenez/d2go/pkg/data"
@@ -153,14 +154,38 @@ func (s Baal) Run() error {
 
 	_, isLevelingChar := s.ctx.Char.(context.LevelingCharacter)
 	if s.ctx.CharacterCfg.Game.Baal.KillBaal || isLevelingChar {
-		utils.Sleep(10000)
+		utils.Sleep(15000)
 		action.Buff()
-		// Exception: Baal portal has no destination in memory
+
+		// find baal portal
 		baalPortal, _ := s.ctx.Data.Objects.FindOne(object.BaalsPortal)
-		_ = action.InteractObject(baalPortal, nil)
-		utils.Sleep(700)
-		if err = s.ctx.Char.KillBaal(); err != nil {
-			return action.ClearCurrentLevel(false, data.MonsterAnyFilter())
+
+		// try 5 times
+		maxAttempts := 5
+		for attempt := 1; attempt <= maxAttempts; attempt++ {
+			err = action.InteractObject(baalPortal, func() bool {
+				return s.ctx.Data.PlayerUnit.Area == area.TheWorldstoneChamber
+			})
+
+			// check if we are in worldstone chamber
+			if s.ctx.Data.PlayerUnit.Area == area.TheWorldstoneChamber {
+
+				break
+			}
+
+			// wait and try again
+			utils.Sleep(1000)
+			s.ctx.Logger.Debug(fmt.Sprintf("Attempt %d: Player not in TheWorldstoneChamber, retrying...", attempt))
+		}
+
+		// are we in worldstone chamber now ?
+		if s.ctx.Data.PlayerUnit.Area == area.TheWorldstoneChamber {
+			// kill baal
+			_ = action.MoveToCoords(data.Position{X: 15136, Y: 5943})
+			return s.ctx.Char.KillBaal()
+		} else {
+			// Log after 5 failed attempts
+			s.ctx.Logger.Warn("Player still not in TheWorldstoneChamber after 5 attempts, skipping Baal kill.")
 		}
 	}
 
