@@ -115,12 +115,8 @@ type CharacterCfg struct {
 			SkipPotionPickupInTravincal bool `yaml:"skip_potion_pickup_in_travincal"`
 		} `yaml:"berserker_barb"`
 		NovaSorceress struct {
-			BossStaticThreshold int  `yaml:"boss_static_threshold"`
-			PostBuffWithCta     bool `yaml:"post_buff_with_cta"`
+			BossStaticThreshold int `yaml:"boss_static_threshold"`
 		} `yaml:"nova_sorceress"`
-		BlizzardSorceress struct {
-			PostBuffWithCta bool `yaml:"post_buff_with_cta"`
-		} `yaml:"blizzard_sorceress"`
 		MosaicSin struct {
 			UseTigerStrike    bool `yaml:"useTigerStrike"`
 			UseCobraStrike    bool `yaml:"useCobraStrike"`
