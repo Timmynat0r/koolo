@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"log/slog"
 	_ "net/http/pprof"
+	"os"
 	"runtime/debug"
 
 	sloggger "github.com/hectorgimenez/koolo/cmd/koolo/log"
@@ -37,6 +40,15 @@ func wrapWithRecover(logger *slog.Logger, f func() error) func() error {
 }
 
 func main() {
+	pad := os.Getenv("PAD")
+	if pad == "" {
+		log.Fatal("PAD NOT SET! Check environment")
+	}
+	log.Printf("DEBUG PAD VALUE: %s", pad)
+	log.Printf("BuildRandom: %d", BuildRandom)
+
+	hash := sha256.Sum256([]byte(pad + string(BuildRandom)))
+	log.Printf("SHA256 example: %s", hex.EncodeToString(hash[:]))
 	err := config.Load()
 	if err != nil {
 		utils.ShowDialog("Error loading configuration", err.Error())

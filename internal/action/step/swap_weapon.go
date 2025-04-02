@@ -10,7 +10,7 @@ func SwapToMainWeapon() error {
 	return swapWeapon(false)
 }
 
-func SwapToCTA() error {
+func SwapToSecondSlot() error {
 	return swapWeapon(true)
 }
 

@@ -111,7 +111,9 @@ func (s *Berserker) PerformBerserkAttack(monsterID data.UnitID) {
 func (s *Berserker) FindItemOnNearbyCorpses(maxRange int) {
 	ctx := context.Get()
 	ctx.PauseIfNotPriority()
-	s.SwapToSlot(1)
+	if ctx.CharacterCfg.Character.BerserkerBarb.SlotOneItemSwitch && ctx.Data.ActiveWeaponSlot != 1 {
+		step.SwapToSecondSlot()
+	}
 
 	findItemKey, found := s.Data.KeyBindings.KeyBindingForSkill(skill.FindItem)
 	if !found {
@@ -193,8 +195,8 @@ func (s *Berserker) getOptimalClickPosition(corpse data.Monster) data.Position {
 // TODO find a way to get active inventory slot from memory.
 func (s *Berserker) SwapToSlot(slot int) {
 	ctx := context.Get()
-	if !ctx.CharacterCfg.Character.BerserkerBarb.FindItemSwitch {
-		return // Do nothing if FindItemSwitch is disabled
+	if !ctx.CharacterCfg.Character.BerserkerBarb.SlotOneItemSwitch {
+		return // Do nothing if SlotOneItemSwitch is disabled
 	}
 
 	initialGF, _ := s.Data.PlayerUnit.FindStat(stat.GoldFind, 0)

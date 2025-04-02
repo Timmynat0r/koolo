@@ -111,7 +111,7 @@ type CharacterCfg struct {
 		StashToShared bool   `yaml:"stashToShared"`
 		UseTeleport   bool   `yaml:"useTeleport"`
 		BerserkerBarb struct {
-			FindItemSwitch              bool `yaml:"find_item_switch"`
+			SlotOneItemSwitch           bool `yaml:"find_item_switch"`
 			SkipPotionPickupInTravincal bool `yaml:"skip_potion_pickup_in_travincal"`
 		} `yaml:"berserker_barb"`
 		NovaSorceress struct {

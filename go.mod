@@ -7,7 +7,7 @@ require (
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gorilla/websocket v1.5.3
-	github.com/hectorgimenez/d2go v0.0.0-20250314185000-169a76515285
+	github.com/hectorgimenez/d2go v0.0.0-00010101000000-000000000000
 	github.com/inkeliz/gowebview v1.0.1
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
 	github.com/otiai10/copy v1.14.0
@@ -15,6 +15,8 @@ require (
 	golang.org/x/sys v0.28.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+replace github.com/hectorgimenez/d2go => C:\Users\Timothy\Documents\GitHub\d2go
 
 require (
 	git.wow.st/gmp/jni v0.0.0-20210610011705-34026c7e22d0 // indirect

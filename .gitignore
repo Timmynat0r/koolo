@@ -1,11 +1,15 @@
 /.idea
 /.vscode
 /.github
+/.gocache
+/.gocache_debug
 /bin
 /build
 /stats
 /screenshots
 /logs
+
+/output
 
 /config/*
 !/config/template

@@ -4,7 +4,7 @@ import (
 	"github.com/hectorgimenez/d2go/pkg/data"
 	"github.com/hectorgimenez/d2go/pkg/data/area"
 	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/character"
+	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/context"
 )
@@ -28,12 +28,7 @@ func (t *Travincal) Run() error {
 		t.ctx.CurrentGame.AreaCorrection.Enabled = false
 	}()
 
-	// Check if the character is a Berserker and swap to combat gear
-	if berserker, ok := t.ctx.Char.(*character.Berserker); ok {
-		if t.ctx.CharacterCfg.Character.BerserkerBarb.FindItemSwitch {
-			berserker.SwapToSlot(0) // Swap to combat gear (lowest Gold Find)
-		}
-	}
+	step.SwapToMainWeapon() // Swap to combat gear (lowest Gold Find)
 
 	err := action.WayPoint(area.Travincal)
 	if err != nil {
