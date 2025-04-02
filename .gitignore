@@ -8,7 +8,7 @@
 /stats
 /screenshots
 /logs
-
+/cmd/koolo/config
 /output
 
 /config/*
